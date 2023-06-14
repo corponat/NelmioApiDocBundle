@@ -274,9 +274,10 @@ final class FormModelDescriber implements ModelDescriberInterface, ModelRegistry
                 if ($config->getOption('multiple')) {
                     $property->format = sprintf('[%s id]', $entityClass);
                     $property->type = 'array';
-                    $property->items = Util::createChild($property, OA\Items::class, ['type' => 'string']);
+                    $property->items = Util::createChild($property, OA\Items::class, ['type' => 'integer', 'example' => 1]);
                 } else {
-                    $property->type = 'string';
+                    $property->type = 'integer';
+                    $property->example = 1;
                     $property->format = sprintf('%s id', $entityClass);
                 }
 
