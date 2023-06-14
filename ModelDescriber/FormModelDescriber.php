@@ -215,11 +215,13 @@ final class FormModelDescriber implements ModelDescriberInterface, ModelRegistry
                         $type = 'string';
                     }
 
+                    $example = current($enums);
                     if ($config->getOption('multiple')) {
-                        $property->items = Util::createChild($property, OA\Items::class, ['type' => $type, 'enum' => $enums, 'example' => current($enums)]);
+                        $property->items = Util::createChild($property, OA\Items::class, ['type' => $type, 'enum' => $enums, 'example' => $example]);
                     } else {
                         $property->type = $type;
                         $property->enum = $enums;
+                        $property->example = $example;
                     }
                 }
 
