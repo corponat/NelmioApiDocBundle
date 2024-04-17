@@ -1,6 +1,126 @@
 CHANGELOG
 =========
 
+4.25.0
+-----
+* Added support for [JMS @Discriminator](https://jmsyst.com/libs/serializer/master/reference/annotations#discriminator) annotation/attribute
+  ```php
+  #[\JMS\Serializer\Annotation\Discriminator(field: 'type', map: ['car' => Car::class, 'plane' => Plane::class])]
+  abstract class Vehicle { }
+  class Car extends Vehicle { }
+  class Plane extends Vehicle { }
+  ```
+
+4.24.0
+-----
+* Added support for some integer ranges (https://phpstan.org/writing-php-code/phpdoc-types#integer-ranges).  
+  Annotations attached to integer properties like:
+  ```php
+    /**
+     * @var int<6, 11>
+     * @var int<min, 11>
+     * @var int<6, max>
+     * @var positive-int
+     * @var negative-int
+     */
+  ```
+  will be interpreted as appropriate `minimum` and `maximum` properties in the generated OpenAPI specification.
+
+### Minor breaking change
+Dropped support for PHP 7.2 and PHP 7.3. PHP 7.4 is the minimum required version now.
+
+4.23.0
+-----
+* Cache configuration option `nelmio_api_doc.cache.item_id` now automatically gets the area appended.
+  ```yml
+  nelmio_api_doc:
+      cache:
+          pool: app.cache
+          item_id: nelmio_api_doc.docs
+      areas:
+          default: 
+              ...
+          area1:   
+              ...
+  ```
+  Result in cache keys: `nelmio_api_doc.docs.default` & `nelmio_api_doc.docs.area1` to be used respectively.
+* Added cache configuration option per area.
+  ```yml
+  nelmio_api_doc:
+      areas:
+          default: # Manual cache configuration
+              cache:
+                  pool: app.cache
+                  item_id: nelmio_api_doc.docs.default
+              ...
+          area1:   
+              cache:
+                  pool: app.cache
+                  item_id: nelmio_api_doc.docs.area1
+              ...
+  ```
+  Non-configured options will be inherited from `nelmio_api_doc.cache`.
+* Fixed vendor extensions (`x-*`) from configuration not being outputted in the generated specification.
+  ```yml
+  nelmio_api_doc:
+      documentation:
+          info:
+              title: 'My API'
+              description: 'My API description'
+              x-foo: 'bar'
+  ```
+  Now results in JSON specification:
+  ```json
+  {
+    ...
+    "info": {
+      "title": "API",
+      "version": "1.0",
+      "x-foo": "bar"
+    },
+    ...
+  }
+  ```
+* Updated nullable enum handling to align with the behaviour of other object types. It now uses wraps nullable enums with `oneOf` instead of `allOf`.
+
+4.22.0
+-----
+* Updated bundle directory structure to recommended file structure as described in https://symfony.com/doc/7.0/bundles/best_practices.html.
+
+  It might be necessary to reinstall the assets:
+  ```bash
+    bin/console assets:install
+  ```
+
+### Breaking change
+If your codebase mentions a file or directory by path then an update to this path is necessary. For example to following configuration:
+```yaml
+doc-api:
+    resource: "@NelmioApiDocBundle/Resources/config/routing/swaggerui.xml"
+    prefix: /api/doc
+```
+Becomes:
+```yaml
+doc-api:
+    resource: "@NelmioApiDocBundle/config/routing/swaggerui.xml"
+    prefix: /api/doc
+```
+
+4.21.0
+-----
+* Added bundle configuration options `nelmio_api_doc.cache.pool` and `nelmio_api_doc.cache.item_id`.
+  ```yml
+  nelmio_api_doc:
+      cache:
+          pool: app.cache
+          item_id: nelmio_api_doc.docs
+  ```
+  
+4.20.0
+-----
+* Added Redocly as an alternative to Swagger UI. https://github.com/Redocly/redoc.
+* Added support for describing dictionary types in OpenAPI 3.0.
+
 4.0.0
 -----
 * Added support of OpenAPI 3.0. The internals were completely reworked and this version introduces BC breaks.
